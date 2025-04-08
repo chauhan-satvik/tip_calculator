@@ -28,6 +28,11 @@ class TipCalculator extends StatefulWidget {
 }
 
 class _TipCalculatorState extends State<TipCalculator> {
+    String result = '';
+
+    final amountController = TextEditingController();
+    final tipController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
 
@@ -54,6 +59,7 @@ class _TipCalculatorState extends State<TipCalculator> {
             Padding(
               padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
               child: TextField(
+                controller: amountController,
                 decoration: InputDecoration(
                   hintText: 'Enter Your Bill Amount (₹)',
                   filled: true,
@@ -71,6 +77,7 @@ class _TipCalculatorState extends State<TipCalculator> {
             Padding(
               padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
               child: TextField(
+                controller: tipController,
                 decoration: InputDecoration(
                   hintText: 'Enter The Tip (%)',
                   filled: true,
@@ -86,10 +93,42 @@ class _TipCalculatorState extends State<TipCalculator> {
             ),
             Padding(
               padding: const EdgeInsets.only(left: 10, right: 10 , top: 3),
-              child: TextButton(
-                onPressed: null,
+              child: ElevatedButton(
+                onPressed: () {
+                  final amountText = amountController.text;
+                  final tipText = tipController.text;
+
+  // Safety check: Are both fields filled?
+                  if (amountText.isEmpty || tipText.isEmpty) {
+                    setState(() {
+                      result = 'Please enter both fields!';
+                    });
+                    return;
+                  }
+
+                  final amount = double.tryParse(amountText);
+                  final tipPercent = double.tryParse(tipText);
+
+  // Check if parsing worked
+                  if (amount == null || tipPercent == null) {
+                   setState(() {
+                      result = 'Invalid input!';
+                    });
+                    return;
+                 }
+
+                  final tipAmount = amount * (tipPercent / 100);
+                  final totalAmount = amount + tipAmount;
+
+                  setState(() {
+                    result = 'Total: ₹${totalAmount.toStringAsFixed(2)}';
+                  });
+                },
                 style: ElevatedButton.styleFrom(
                   elevation: 15,
+                  textStyle: TextStyle(
+                    color: Colors.white
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
@@ -98,7 +137,18 @@ class _TipCalculatorState extends State<TipCalculator> {
                   minimumSize: const Size(double.infinity, 50),
                   
                 ),
-                child: const Text('Convert'),
+                child: const Text('Calculate'),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Center(
+              child: Text(
+                result,
+                style: const TextStyle(
+                  fontSize: 24,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ],
